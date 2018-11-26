@@ -1,5 +1,6 @@
 package myprojects.automation.assignment5;
 
+import myprojects.automation.assignment5.utils.logging.EventHandler;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
@@ -9,6 +10,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 import java.util.concurrent.TimeUnit;
+import static myprojects.automation.assignment5.utils.DriverFactory.initDriver;
 
 /**
  * Base script functionality, can be used for all Selenium scripts.
@@ -29,17 +31,21 @@ public abstract class BaseTest {
     @Parameters({"selenium.browser", "selenium.grid"})
     public void setUp(@Optional("chrome") String browser, @Optional("") String gridUrl) {
         // TODO create WebDriver instance according to passed parameters
-        // driver = new EventFiringWebDriver(....);
-        // driver.register(new EventHandler());
-        // ...
+        if (!gridUrl.equals("")){
+            driver = new EventFiringWebDriver(initDriver(browser, gridUrl));
+            driver.register(new EventHandler());
+        } else {
+            driver = new EventFiringWebDriver(initDriver(browser));
+            driver.register(new EventHandler());
+        }
 
         driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
+
+        isMobileTesting = isMobileTesting(browser);
         // unable to maximize window in mobile mode
         if (!isMobileTesting(browser))
             driver.manage().window().maximize();
-
-        isMobileTesting = isMobileTesting(browser);
 
         actions = new GeneralActions(driver);
     }

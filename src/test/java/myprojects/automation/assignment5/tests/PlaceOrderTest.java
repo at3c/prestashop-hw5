@@ -8,6 +8,8 @@ public class PlaceOrderTest extends BaseTest {
     @Test
     public void checkSiteVersion() {
         // TODO open main page and validate website version
+        driver.get("http://prestashop-automation.qatestlab.com.ua/");
+
     }
 
     @Test

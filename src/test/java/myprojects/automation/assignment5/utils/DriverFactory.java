@@ -2,12 +2,18 @@ package myprojects.automation.assignment5.utils;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DriverFactory {
     /**
@@ -31,6 +37,15 @@ public class DriverFactory {
                         .destructivelyEnsureCleanSession();
                 ieOptions.setCapability(InternetExplorerDriver.NATIVE_EVENTS, false);
                 return new InternetExplorerDriver(ieOptions);
+            case "mobile":
+                System.setProperty(
+                        "webdriver.chrome.driver",
+                        new File(DriverFactory.class.getResource("/chromedriver.exe").getFile()).getPath());
+                Map<String, String> mobileEmulation = new HashMap<>();
+                mobileEmulation.put("deviceName", "Galaxy S5");
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
+                return new ChromeDriver(chromeOptions);
             case "chrome":
             default:
                 System.setProperty(
@@ -48,6 +63,46 @@ public class DriverFactory {
      */
     public static WebDriver initDriver(String browser, String gridUrl) {
         // TODO prepare capabilities for required browser and return RemoteWebDriver instance
-        throw new UnsupportedOperationException();
+        switch (browser) {
+            case "firefox":
+                FirefoxOptions firefoxOptions = new FirefoxOptions();
+                try {
+                    return new RemoteWebDriver(new URL(gridUrl), firefoxOptions);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            case "ie":
+            case "internet explorer":
+                InternetExplorerOptions ieOptions = new InternetExplorerOptions().
+                        destructivelyEnsureCleanSession();
+                ieOptions.setCapability(InternetExplorerDriver.NATIVE_EVENTS, false);
+                try {
+                    return new RemoteWebDriver(new URL(gridUrl), ieOptions);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            case "mobile":
+                System.setProperty(
+                        "webdriver.chrome.driver",
+                        new File(DriverFactory.class.getResource("/chromedriver.exe").getFile()).getPath());
+                Map<String, String> mobileEmulation = new HashMap<>();
+                mobileEmulation.put("deviceName", "Galaxy S5");
+                ChromeOptions mobileChromeOptions = new ChromeOptions();
+                mobileChromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
+                try {
+                    return new RemoteWebDriver(new URL(gridUrl), mobileChromeOptions);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            case "chrome":
+            default:
+                ChromeOptions chromeOptions = new ChromeOptions();
+                try {
+                    return new RemoteWebDriver(new URL(gridUrl), chromeOptions);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+        }
     }
 }
